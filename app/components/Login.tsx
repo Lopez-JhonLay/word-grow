@@ -1,13 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../auth/schema";
+import { LoginFormData } from "@/types/form";
 
-type LoginType = {
+type LoginProps = {
   onSwitch: () => void;
 };
 
-function Login({ onSwitch }: LoginType) {
+function Login({ onSwitch }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    console.log("Login Data:", data);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    alert("Login Successful!");
+  };
 
   return (
     <>
@@ -16,7 +39,7 @@ function Login({ onSwitch }: LoginType) {
         <p className="text-gray-500 text-sm">Log in to continue your daily word streak.</p>
       </div>
 
-      <form action="#" method="POST">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="mb-4">
           <label htmlFor="email" className="block text-sm font-semibold text-gray-800 mb-1.5">
             Email
@@ -39,12 +62,14 @@ function Login({ onSwitch }: LoginType) {
               </svg>
             </div>
             <input
+              {...register("email")}
               type="email"
               id="email"
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition"
               placeholder="you@example.com"
             />
           </div>
+          {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
         </div>
 
         <div className="mb-4">
@@ -69,9 +94,10 @@ function Login({ onSwitch }: LoginType) {
               </svg>
             </div>
             <input
+              {...register("password")}
               type={showPassword ? "text" : "password"}
               id="password"
-              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition text-lg tracking-widest"
+              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition  tracking-widest"
               placeholder="••••••••"
             />
             <button
@@ -118,11 +144,13 @@ function Login({ onSwitch }: LoginType) {
               )}
             </button>
           </div>
+          {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
         </div>
 
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <input
+              {...register("rememberMe")}
               id="remember-me"
               name="remember-me"
               type="checkbox"

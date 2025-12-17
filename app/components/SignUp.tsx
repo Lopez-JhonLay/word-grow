@@ -1,13 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signUpSchema } from "../auth/schema";
+import { SignUpFormData } from "@/types/form";
 
-type SignUpType = {
+type SignUpProps = {
   onSwitch: () => void;
 };
 
-function SignUp({ onSwitch }: SignUpType) {
+function SignUp({ onSwitch }: SignUpProps) {
   const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: SignUpFormData) => {
+    console.log("Login Data:", data);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    alert("Login Successful!");
+  };
 
   return (
     <>
@@ -16,7 +39,7 @@ function SignUp({ onSwitch }: SignUpType) {
         <p className="text-gray-500 text-sm">Start your 30-day vocabulary journey today.</p>
       </div>
 
-      <form action="#" method="POST">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {/* Name Input */}
         <div className="mb-4">
           <label htmlFor="name" className="block text-sm font-semibold text-gray-800 mb-1.5">
@@ -40,12 +63,14 @@ function SignUp({ onSwitch }: SignUpType) {
               </svg>
             </div>
             <input
+              {...register("fullName")}
               type="text"
               id="name"
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition"
               placeholder="John Doe"
             />
           </div>
+          {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName.message}</p>}
         </div>
 
         {/* Email Input */}
@@ -71,12 +96,14 @@ function SignUp({ onSwitch }: SignUpType) {
               </svg>
             </div>
             <input
+              {...register("email")}
               type="email"
               id="email-signup"
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition"
               placeholder="you@example.com"
             />
           </div>
+          {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
         </div>
 
         {/* Password Input */}
@@ -102,9 +129,10 @@ function SignUp({ onSwitch }: SignUpType) {
               </svg>
             </div>
             <input
+              {...register("password")}
               type={showPassword ? "text" : "password"}
               id="password-signup"
-              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition text-lg tracking-widest"
+              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition tracking-widest"
               placeholder="••••••••"
             />
             <button
@@ -151,6 +179,7 @@ function SignUp({ onSwitch }: SignUpType) {
               )}
             </button>
           </div>
+          {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
         </div>
 
         {/* Submit Button */}
