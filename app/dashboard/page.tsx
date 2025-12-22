@@ -1,13 +1,12 @@
 "use client";
 
-import { use } from "react";
-// import { logout } from "../login/actions";
+import { logout } from "../auth/actions";
 
 function Dashboard() {
   return (
     <div>
       <p>Dashboard</p>
-      {/* <button onClick={() => logout()}>Logout</button> */}
+      <button onClick={() => logout()}>Logout</button>
     </div>
   );
 }
