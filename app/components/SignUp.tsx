@@ -7,7 +7,7 @@ import { signUpSchema } from "../auth/schema";
 import { SignUpFormData } from "@/types/form";
 import { signup } from "../auth/actions";
 import toast from "react-hot-toast";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 
 type SignUpProps = {
   onSwitch: () => void;
@@ -15,6 +15,8 @@ type SignUpProps = {
 
 function SignUp({ onSwitch }: SignUpProps) {
   const [showPassword, setShowPassword] = useState(false);
+
+  const router = useRouter();
 
   const {
     register,
@@ -41,11 +43,9 @@ function SignUp({ onSwitch }: SignUpProps) {
         return;
       }
 
-      toast.success("Account created successfully!");
+      router.push("/dashboard");
 
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
+      toast.success("Account created successfully!");
     } catch (err) {
       console.error("Signup failed:", err);
       toast.error("Something went wrong. Please try again.");

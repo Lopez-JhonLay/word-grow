@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../auth/schema";
 import { LoginFormData } from "@/types/form";
+import { login } from "../auth/actions";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 type LoginProps = {
   onSwitch: () => void;
@@ -12,6 +15,8 @@ type LoginProps = {
 
 function Login({ onSwitch }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
+
+  const router = useRouter();
 
   const {
     register,
@@ -22,14 +27,28 @@ function Login({ onSwitch }: LoginProps) {
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false,
     },
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log("Login Data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    alert("Login Successful!");
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => formData.append(key, value));
+
+    try {
+      const result = await login(formData);
+
+      if (result?.errors) {
+        toast.error("Please check the form for errors");
+        return;
+      }
+
+      router.push("/dashboard");
+
+      toast.success("Login successfully!");
+    } catch (err) {
+      console.error("Login failed:", err);
+      toast.error("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -147,45 +166,44 @@ function Login({ onSwitch }: LoginProps) {
           {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
         </div>
 
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <input
-              {...register("rememberMe")}
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-400">
-              Remember me
-            </label>
-          </div>
-          <div className="text-sm">
-            <a href="#" className="font-medium text-blue-500 hover:text-blue-600">
-              Forgot password?
-            </a>
-          </div>
-        </div>
-
         <button
           type="submit"
-          className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+          disabled={isSubmitting}
+          className={`w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ${
+            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-            />
-          </svg>
-          Log in
+          {isSubmitting ? (
+            <svg
+              className="animate-spin h-5 w-5 mr-2 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3H4z"
+              ></path>
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
+            </svg>
+          )}
+          {isSubmitting ? "Logging in..." : "Login"}
         </button>
       </form>
 

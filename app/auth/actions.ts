@@ -9,8 +9,6 @@ import { loginSchema, signUpSchema } from "./schema";
 export async function signup(formData: FormData) {
   const data = Object.fromEntries(formData);
 
-  console.log(data);
-
   const result = signUpSchema.safeParse(data);
 
   if (!result.success) {
@@ -24,8 +22,6 @@ export async function signup(formData: FormData) {
   if (!fullName || !email || !password) {
     return { errors: { form: ["All fields are required"] } };
   }
-
-  console.log("Signup data:", { fullName, email, password });
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
 
@@ -77,7 +73,7 @@ export async function login(formData: FormData) {
 
   await createSession(user.id);
 
-  redirect("/dashboard");
+  return { success: true };
 }
 
 export async function logout() {
