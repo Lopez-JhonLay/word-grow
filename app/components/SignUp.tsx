@@ -43,7 +43,7 @@ function SignUp({ onSwitch }: SignUpProps) {
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/dashboard/home");
 
       toast.success("Account created successfully!");
     } catch (err) {

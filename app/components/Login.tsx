@@ -42,7 +42,7 @@ function Login({ onSwitch }: LoginProps) {
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/dashboard/home");
 
       toast.success("Login successfully!");
     } catch (err) {
