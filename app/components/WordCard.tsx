@@ -1,7 +1,39 @@
+"use client";
+
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { saveUserSentence, State } from "../actions/word.action";
+
 interface WordCardProps {
   word?: string;
   definition?: string;
   example?: string;
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer disabled:bg-blue-300"
+    >
+      {pending ? "Saving..." : "Save & continue"}
+      {!pending && (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+          />
+          <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" strokeWidth="2" fill="none" />
+          <polyline points="7,3 7,8 15,8" stroke="currentColor" strokeWidth="2" fill="none" />
+        </svg>
+      )}
+    </button>
+  );
 }
 
 export default function WordCard({
@@ -9,9 +41,14 @@ export default function WordCard({
   definition = "Present, appearing, or found everywhere.",
   example = "Smartphones have become ubiquitous in modern society.",
 }: WordCardProps) {
+  const initialState: State = { message: null, errors: {} };
+  const [state, formAction] = useActionState(saveUserSentence, initialState);
+
   return (
-    <div className="max-w-2xl bg-white rounded-lg shadow-xl p-8 ">
-      {/* Header with bookmark icon and word */}
+    <form action={formAction} className="max-w-2xl bg-white rounded-lg shadow-xl p-8 ">
+      <input type="hidden" name="word" value={word} />
+      <input type="hidden" name="definition" value={definition} />
+
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6">
@@ -41,13 +78,21 @@ export default function WordCard({
       <div className="mb-6">
         <h3 className="text-gray-900 font-medium mb-4">Your sentence</h3>
         <textarea
-          className="w-full h-24 p-4 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          name="userSentence"
+          className={`w-full h-24 p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            state.errors?.userSentence ? "border-red-500" : "border-gray-200"
+          }`}
           placeholder="Type your sentence here..."
         />
+        {state.errors?.userSentence && <p className="mt-2 text-sm text-red-500">{state.errors.userSentence[0]}</p>}
+        {state.message && !state.errors && <p className="mt-2 text-sm text-green-600">{state.message}</p>}
       </div>
 
       <div className="flex justify-between items-center">
-        <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+        <button
+          type="button"
+          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+        >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
             <path
               d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"
@@ -59,20 +104,8 @@ export default function WordCard({
           AI feedback
         </button>
 
-        <button className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
-              stroke="currentColor"
-              strokeWidth="2"
-              fill="none"
-            />
-            <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" strokeWidth="2" fill="none" />
-            <polyline points="7,3 7,8 15,8" stroke="currentColor" strokeWidth="2" fill="none" />
-          </svg>
-          Save & continue
-        </button>
+        <SubmitButton />
       </div>
-    </div>
+    </form>
   );
 }
