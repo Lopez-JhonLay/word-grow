@@ -2,13 +2,21 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { saveUserSentence, State } from "../actions/word.action";
+import { GrammarState, saveUserSentence, checkUserSentence, State } from "../actions/word.action";
 
 interface WordCardProps {
   word?: string;
   definition?: string;
   example?: string;
 }
+
+const initialGrammarState: GrammarState = {
+  success: false,
+  error: "",
+  corrected: "",
+  explanation: "",
+  is_correct: false,
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -42,10 +50,11 @@ export default function WordCard({
   example = "Smartphones have become ubiquitous in modern society.",
 }: WordCardProps) {
   const initialState: State = { message: null, errors: {} };
-  const [state, formAction] = useActionState(saveUserSentence, initialState);
+  const [saveState, saveAction] = useActionState(saveUserSentence, initialState);
+  const [grammarState, grammarAction, isChecking] = useActionState(checkUserSentence, initialGrammarState);
 
   return (
-    <form action={formAction} className="max-w-2xl bg-white rounded-lg shadow-xl p-8 ">
+    <form action={saveAction} className="max-w-2xl bg-white rounded-lg shadow-xl p-8 ">
       <input type="hidden" name="word" value={word} />
       <input type="hidden" name="definition" value={definition} />
 
@@ -80,28 +89,48 @@ export default function WordCard({
         <textarea
           name="userSentence"
           className={`w-full h-24 p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            state.errors?.userSentence ? "border-red-500" : "border-gray-200"
+            saveState.errors?.userSentence ? "border-red-500" : "border-gray-200"
           }`}
           placeholder="Type your sentence here..."
         />
-        {state.errors?.userSentence && <p className="mt-2 text-sm text-red-500">{state.errors.userSentence[0]}</p>}
-        {state.message && !state.errors && <p className="mt-2 text-sm text-green-600">{state.message}</p>}
+        {saveState.errors?.userSentence && (
+          <p className="mt-2 text-sm text-red-500">{saveState.errors.userSentence[0]}</p>
+        )}
+        {saveState.message && !saveState.errors && <p className="mt-2 text-sm text-green-600">{saveState.message}</p>}
       </div>
+
+      {grammarState.success && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-gray-800">
+          <strong>AI Feedback:</strong> {grammarState.explanation}
+          {grammarState.corrected && (
+            <div className="mt-2 font-mono text-green-700">Did you mean: "{grammarState.corrected}"?</div>
+          )}
+        </div>
+      )}
+      {grammarState.error && <p className="text-red-500 text-sm mb-4">{grammarState.error}</p>}
 
       <div className="flex justify-between items-center">
         <button
-          type="button"
-          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          type="submit"
+          formAction={grammarAction}
+          disabled={isChecking}
+          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              fill="none"
-            />
-          </svg>
-          AI feedback
+          {isChecking ? (
+            "Checking..."
+          ) : (
+            <>
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                />
+              </svg>
+              AI feedback
+            </>
+          )}
         </button>
 
         <SubmitButton />
