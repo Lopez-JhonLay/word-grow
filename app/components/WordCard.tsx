@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { useFormStatus } from "react-dom";
 import { GrammarState, saveUserSentence, checkUserSentence, State } from "../actions/word.action";
 
 interface WordCardProps {
@@ -33,7 +32,7 @@ export default function WordCard({
   const [grammarState, grammarAction, isChecking] = useActionState(checkUserSentence, initialGrammarState);
 
   return (
-    <div className="max-w-2xl bg-white rounded-lg shadow-xl p-8">
+    <div className="max-w-2xl bg-white rounded-lg shadow-xl p-4">
       {/* Header */}
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">{word}</h1>
 
@@ -68,8 +67,8 @@ export default function WordCard({
           <input type="hidden" name="definition" value={definition} />
           <input type="hidden" name="example" value={example} />
           <input type="hidden" name="userSentence" value={sentence} />
-          <button type="submit" className="cursor-pointer">
-            AI feedback
+          <button type="submit" disabled={isChecking} className="cursor-pointer">
+            {isChecking ? "Checking..." : "Check"}
           </button>
         </form>
       </div>
@@ -96,14 +95,12 @@ export default function WordCard({
 
         <button
           type="submit"
-          disabled={isSaving}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg disabled:bg-blue-300"
+          disabled={!grammarState.is_correct || isSaving}
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg disabled:bg-blue-300 cursor-pointer"
         >
-          {isSaving ? "Saving..." : "Save & continue"}
+          {isSaving ? "Saving..." : "Save"}
         </button>
       </form>
-
-      {saveState.message && <p className="mt-2 text-sm text-green-600">{saveState.message}</p>}
     </div>
   );
 }
