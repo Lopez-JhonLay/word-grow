@@ -76,6 +76,7 @@ export async function saveUserSentence(prevState: State, formData: FormData): Pr
 export async function checkUserSentence(prevState: GrammarState, formData: FormData): Promise<GrammarState> {
   const word = formData.get("word") as string;
   const definition = formData.get("definition") as string;
+  const example = formData.get("example") as string;
   const sentence = formData.get("userSentence") as string;
 
   if (!sentence || sentence.trim() === "") {
@@ -89,20 +90,40 @@ export async function checkUserSentence(prevState: GrammarState, formData: FormD
     const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     const systemPrompt = `
-      You are an expert English teacher. 
-      The user is trying to learn the word: "${word}" (Definition: ${definition}).
+      You are an expert English teacher.
 
-      Task 1: Check the user's sentence for grammar and spelling errors.
-      Task 2: Check if the word "${word}" is used correctly based on its definition.
+      The user is learning the word: "${word}"
+      Definition: ${definition}
+      Example usage: ${example}
 
-      Return ONLY a JSON object with this exact structure:
+      TASK:
+      1. Check the user's sentence for:
+        - Grammar and spelling
+        - Correct usage of the word "${word}" based on its definition
+
+      2. If the sentence is incorrect:
+        - Rewrite the sentence into a natural, correct version
+        - The rewritten sentence MUST use "${word}" correctly
+        - The rewritten sentence MUST be same with the user ${sentence}
+        - The rewritten sentence MUST NOT be similar to the provided ${example}
+        - Do NOT ask questions
+        - Do NOT use phrases like "Did you mean", "Consider", or "You should"
+
+      3. If the sentence is correct:
+        - Return it unchanged
+
+      OUTPUT RULES:
+      - Return ONLY a valid JSON object
+      - Do NOT include markdown
+      - Do NOT include extra commentary outside the JSON
+
+      JSON STRUCTURE (exact keys):
       {
-        "corrected": "The corrected version of the sentence (fix grammar AND usage if needed)",
-        "is_correct": boolean, // true ONLY if grammar is perfect AND the word is used correctly
-        "explanation": "A brief explanation. If the grammar is fine but the word usage is wrong, explain why."
+        "corrected": "string",
+        "is_correct": boolean,
+        "explanation": "Brief, simple explanation of what was right or wrong"
       }
-      Do not include markdown formatting. Just the raw JSON string.
-    `;
+      `;
 
     const result = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
@@ -117,6 +138,8 @@ export async function checkUserSentence(prevState: GrammarState, formData: FormD
     }
 
     const data = JSON.parse(responseText);
+
+    console.log(data);
 
     return {
       success: true,
