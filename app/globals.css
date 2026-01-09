@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+/* Poppins font configuration */
+:root {
+  --font-poppins: "Poppins", system-ui, sans-serif;
+}
+
+* {
+  font-family: var(--font-poppins);
+}
