@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 import { GrammarState, saveUserSentence, checkUserSentence, State } from "../actions/word.action";
 
 interface WordCardProps {
@@ -30,6 +31,23 @@ export default function WordCard({
   const [sentence, setSentence] = useState("");
   const [saveState, saveAction, isSaving] = useActionState(saveUserSentence, initialSaveState);
   const [grammarState, grammarAction, isChecking] = useActionState(checkUserSentence, initialGrammarState);
+
+  useEffect(() => {
+    if (saveState.message === "Saved successfully!") {
+      toast.success("Sentence saved successfully!");
+      setSentence("");
+    } else if (saveState.message && saveState.message !== "Saved successfully!") {
+      toast.error(saveState.message);
+    }
+  }, [saveState.message]);
+
+  useEffect(() => {
+    if (grammarState.success && grammarState.is_correct) {
+      toast.success("Great! Your sentence is correct!");
+    } else if (grammarState.error) {
+      toast.error(grammarState.error);
+    }
+  }, [grammarState.success, grammarState.is_correct, grammarState.error]);
 
   return (
     <div className="max-w-2xl bg-white rounded-lg shadow-xl p-4">
