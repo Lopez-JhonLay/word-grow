@@ -1,3 +1,7 @@
+"use client";
+
+import { redirect } from "next/navigation";
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -6,7 +10,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
+              <div className="shrink-0 flex items-center">
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-sm">W</span>
                 </div>
@@ -28,8 +32,10 @@ export default function Home() {
               </a>
             </nav>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <button className="text-gray-500 hover:text-gray-900 text-sm sm:text-base">Log in</button>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-blue-700 text-sm sm:text-base">
+              <button
+                onClick={() => redirect("/auth")}
+                className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-blue-700 text-sm sm:text-base cursor-pointer"
+              >
                 Get started free
               </button>
             </div>
@@ -59,10 +65,13 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mb-8 sm:mb-12">
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium text-center">
+              <button
+                onClick={() => redirect("/auth")}
+                className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium text-center cursor-pointer"
+              >
                 Start learning free
               </button>
-              <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-50 font-medium text-center">
+              <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-50 font-medium text-center cursor-pointer">
                 Try a sample session
               </button>
             </div>
@@ -188,7 +197,7 @@ export default function Home() {
 
             <div className="space-y-4 sm:space-y-6">
               <div className="flex items-start space-x-3 sm:space-x-4">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
+                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0 mt-1">
                   1
                 </div>
                 <div>
@@ -201,7 +210,7 @@ export default function Home() {
               </div>
 
               <div className="flex items-start space-x-3 sm:space-x-4">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
+                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0 mt-1">
                   2
                 </div>
                 <div>
@@ -213,7 +222,7 @@ export default function Home() {
               </div>
 
               <div className="flex items-start space-x-3 sm:space-x-4">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
+                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0 mt-1">
                   3
                 </div>
                 <div>
@@ -228,16 +237,19 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-to-r from-blue-600 to-green-500 rounded-2xl p-6 sm:p-8 text-center text-white">
+        <section className="bg-linear-to-r from-blue-600 to-green-500 rounded-2xl p-6 sm:p-8 text-center text-white">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">Start growing your vocabulary today.</h2>
           <p className="text-blue-100 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
             Create a free WordGrow account and turn a few quiet minutes each day into meaningful progress.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <button className="bg-white text-blue-600 px-6 py-3 rounded-md hover:bg-gray-100 font-medium">
+            <button
+              onClick={() => redirect("/auth")}
+              className="bg-white text-blue-600 px-6 py-3 rounded-md hover:bg-gray-100 font-medium cursor-pointer"
+            >
               Create your free account
             </button>
-            <button className="border border-white text-white px-6 py-3 rounded-md hover:bg-white hover:bg-opacity-10 font-medium">
+            <button className="border border-white text-white px-6 py-3 rounded-md font-medium cursor-pointer">
               Explore the features
             </button>
           </div>

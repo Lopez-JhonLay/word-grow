@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
+import { WordData } from "@/lib/dictionary";
 
 const SaveSentenceSchema = z.object({
   word: z.string(),
@@ -154,3 +156,127 @@ export async function checkUserSentence(prevState: GrammarState, formData: FormD
     };
   }
 }
+
+export async function fetchWordData(word?: string): Promise<WordData | null> {
+  try {
+    const client = new OpenAI({
+      apiKey: process.env.OPEN_ROUTER_API_KEY,
+      baseURL: "https://openrouter.ai/api/v1",
+    });
+
+    let prompt: string;
+
+    if (word) {
+      prompt = `
+        You are an expert English dictionary and language teacher.
+        Provide detailed information about the word "${word}".
+        Return ONLY valid JSON with keys: word, definition, example, phonetic.
+        No extra text or markdown.`;
+    } else {
+      prompt = `
+        You are an expert English dictionary and language teacher.
+        Generate a random useful vocabulary word.
+        Return ONLY valid JSON with keys: word, definition, example, phonetic.
+        No extra text or markdown.`;
+    }
+
+    const response = await client.chat.completions.create({
+      model: "openai/gpt-5.2", // switched to reliable 5.2
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 250,
+    });
+
+    const responseText = response.choices?.[0]?.message?.content;
+
+    if (!responseText) {
+      throw new Error("No response received from OpenRouter");
+    }
+
+    // Safe JSON parse: extract first {...} block in case extra text is present
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("No JSON found in model response");
+    }
+
+    const data: WordData = JSON.parse(jsonMatch[0]);
+
+    if (!data.word || !data.definition || !data.example) {
+      throw new Error("Invalid response structure from OpenRouter");
+    }
+
+    return {
+      word: data.word,
+      definition: data.definition,
+      example: data.example,
+    };
+  } catch (error) {
+    console.error("Error fetching word data from OpenRouter:", error);
+    return null;
+  }
+}
+
+/* export async function fetchMultipleWords(count: number = 5): Promise<WordData[]> {
+  try {
+    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+    const systemPrompt = `
+      You are an expert English dictionary and language teacher.
+      
+      TASK: Generate ${count} different vocabulary words suitable for language learning
+      
+      REQUIREMENTS:
+      1. Choose interesting but not overly complex vocabulary words
+      2. Words should be useful for intermediate to advanced English learners
+      3. Provide clear, concise definitions for each word
+      4. Create natural example sentences using each word
+      5. Include phonetic pronunciation if possible
+      6. Avoid very common words and extremely rare words
+      7. Focus on words that are valuable for academic, professional, or sophisticated conversation
+      8. Make sure all words are different and diverse in topics
+      
+      OUTPUT RULES:
+      - Return ONLY a valid JSON array
+      - Do NOT include markdown formatting
+      - Do NOT include extra commentary outside the JSON
+      
+      JSON STRUCTURE (exact format):
+      [
+        {
+          "word": "The vocabulary word",
+          "definition": "Clear and concise definition",
+          "example": "Natural example sentence using the word",
+          "phonetic": "Phonetic pronunciation (optional, use null if not available)"
+        }
+      ]
+    `;
+
+    const result = await genAI.models.generateContent({
+      model: "gemini-2.0-flash-exp",
+      config: { responseMimeType: "application/json" },
+      contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+    });
+
+    const responseText = result.text;
+
+    if (!responseText) {
+      throw new Error("No response received from Gemini API");
+    }
+
+    const data: WordData[] = JSON.parse(responseText);
+
+    // Validate the response structure
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error("Invalid response structure from Gemini API");
+    }
+
+    return data.map((item) => ({
+      word: item.word,
+      definition: item.definition,
+      example: item.example,
+      phonetic: item.phonetic || undefined,
+    }));
+  } catch (error) {
+    console.error("Error fetching multiple words from Gemini:", error);
+    return [];
+  }
+} */
