@@ -3,6 +3,7 @@
 import DashboardHeader from '@/app/components/DashboardHeader';
 import DashboardCard from '@/app/components/DashboardCard';
 import WordCard from '@/app/components/WordCard';
+import DashboardTodaysVocab from '@/app/components/DashboardTodaysVocab';
 
 function Home() {
   return (
@@ -18,6 +19,7 @@ function Home() {
         </div>
 
         {/* <WordCard /> */}
+        <DashboardTodaysVocab />
       </div>
     </div>
   );

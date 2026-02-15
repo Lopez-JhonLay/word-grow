@@ -13,7 +13,7 @@ function DashboardHeader() {
   const firstName = user?.fullName?.split(' ')[0] || 'User';
 
   return (
-    <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="bg-linear-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-4xl">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">
           {getGreeting()}, {firstName} 👋
