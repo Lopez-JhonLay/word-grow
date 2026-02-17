@@ -21,8 +21,25 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relation to word responses
+  // Relations
   wordResponses WordResponse[]
+  dailyUserWords DailyUserWords[]
+}
+
+model DailyUserWords {
+  id        String   @id @default(cuid())
+  word1     String
+  word2     String
+  word3     String
+
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model WordResponse {
