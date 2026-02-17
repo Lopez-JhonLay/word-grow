@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 
 export default function Home() {
   return (
@@ -20,23 +20,12 @@ export default function Home() {
                 </span>
               </div>
             </div>
-            <nav className="hidden lg:flex space-x-8">
-              <a href="#" className="text-gray-500 hover:text-gray-900">
-                Product
-              </a>
-              <a href="#" className="text-gray-500 hover:text-gray-900">
-                How it works
-              </a>
-              <a href="#" className="text-blue-600 hover:text-blue-700">
-                For learners
-              </a>
-            </nav>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
-                onClick={() => redirect("/auth")}
+                onClick={() => redirect('/auth')}
                 className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-blue-700 text-sm sm:text-base cursor-pointer"
               >
-                Get started free
+                Get started
               </button>
             </div>
           </div>
@@ -47,12 +36,6 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="order-2 lg:order-1">
-            {/* Blue notification bar */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center">
-              <span className="text-blue-800 text-sm mb-1 sm:mb-0">Grow your vocabulary, one small session a day</span>
-              <span className="text-xs text-gray-500 sm:ml-auto">No subscriptions. Just focused learning.</span>
-            </div>
-
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
               Make new words feel familiar,
               <br />
@@ -66,30 +49,11 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mb-8 sm:mb-12">
               <button
-                onClick={() => redirect("/auth")}
+                onClick={() => redirect('/auth')}
                 className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium text-center cursor-pointer"
               >
-                Start learning free
+                Start learning for free
               </button>
-              <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-50 font-medium text-center cursor-pointer">
-                Try a sample session
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center">
-                <span className="font-semibold text-gray-900">10 min</span>
-                <span className="ml-2 text-gray-600 text-sm sm:text-base">Average daily session.</span>
-              </div>
-              <div className="flex items-center">
-                <span className="font-semibold text-gray-900">+300 words</span>
-                <span className="ml-2 text-gray-600 text-sm sm:text-base">Built over a few months of use.</span>
-              </div>
-              <div className="flex items-center">
-                <span className="font-semibold text-gray-900">Streaks</span>
-                <span className="ml-2 text-gray-600 text-sm sm:text-base">Stay motivated gently.</span>
-              </div>
             </div>
           </div>
 
@@ -171,87 +135,6 @@ export default function Home() {
               </p>
               <p className="text-xs text-blue-600 mt-2">Feedback. Clear suggestions.</p>
             </div>
-          </div>
-        </section>
-
-        {/* How it works section */}
-        <section className="bg-blue-50 rounded-2xl p-4 sm:p-8 mb-12 sm:mb-16">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">From a new word to confident use.</h2>
-            <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
-              WordGrow connects daily learning, sentence practice, and quick quizzes so you can go from "I've seen that"
-              to "I can use this"—fast.
-            </p>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <div className="bg-white rounded-lg p-3 sm:p-4">
-                <span className="text-xs text-gray-500">Adaptive difficulty</span>
-              </div>
-              <div className="bg-white rounded-lg p-3 sm:p-4">
-                <span className="text-xs text-gray-500">Progress tracking</span>
-              </div>
-              <div className="bg-white rounded-lg p-3 sm:p-4 sm:col-span-2 lg:col-span-1">
-                <span className="text-xs text-gray-500">Quick streak history</span>
-              </div>
-            </div>
-
-            <div className="space-y-4 sm:space-y-6">
-              <div className="flex items-start space-x-3 sm:space-x-4">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0 mt-1">
-                  1
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Learn in context</h4>
-                  <p className="text-gray-600 text-sm">
-                    Start with a short daily session of 3-5 curated words, each with clear definitions and natural
-                    example sentences.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3 sm:space-x-4">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0 mt-1">
-                  2
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Practice with your own sentences</h4>
-                  <p className="text-gray-600 text-sm">
-                    Type sentences that fit your life—emails, essays, or conversations—so words build into your routine.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3 sm:space-x-4">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0 mt-1">
-                  3
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Review with quick quizzes</h4>
-                  <p className="text-gray-600 text-sm">
-                    Use multiple choice and fill-in-the-blank quizzes to check recall and keep words fresh over time.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="bg-linear-to-r from-blue-600 to-green-500 rounded-2xl p-6 sm:p-8 text-center text-white">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Start growing your vocabulary today.</h2>
-          <p className="text-blue-100 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
-            Create a free WordGrow account and turn a few quiet minutes each day into meaningful progress.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <button
-              onClick={() => redirect("/auth")}
-              className="bg-white text-blue-600 px-6 py-3 rounded-md hover:bg-gray-100 font-medium cursor-pointer"
-            >
-              Create your free account
-            </button>
-            <button className="border border-white text-white px-6 py-3 rounded-md font-medium cursor-pointer">
-              Explore the features
-            </button>
           </div>
         </section>
       </main>
