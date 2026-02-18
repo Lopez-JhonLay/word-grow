@@ -10,8 +10,6 @@ import { Word } from '@/types/dictionary';
 async function Home() {
   const words = (await fetchDailyWords()) as Word[];
 
-  console.log('SERVER:', words);
-
   return (
     <div className="p-4 sm:p-8">
       <div>

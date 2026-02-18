@@ -8,6 +8,8 @@ import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
 import { WordData } from '@/types/dictionary';
 
+import { WordService } from '../services/word.service';
+
 const SaveSentenceSchema = z.object({
   word: z.string(),
   definition: z.string(),
@@ -32,42 +34,14 @@ export interface GrammarState {
 
 export async function fetchDailyWords(): Promise<WordData | null> {
   try {
-    const client = new OpenAI({
-      apiKey: process.env.OPEN_ROUTER_API_KEY,
-      baseURL: 'https://openrouter.ai/api/v1',
-    });
-
-    let prompt: string;
-
-    prompt = `
-        You are an expert English dictionary and language teacher.
-        Generate 3 random useful vocabulary words.
-        Return ONLY valid JSON with keys: word, definition, example, phonetic.
-        No extra text or markdown.`;
-
-    const response = await client.responses.create({
-      model: 'gpt-4o-mini',
-      temperature: 0.2,
-      input: prompt,
-      max_output_tokens: 250,
-    });
-
-    const responseText: string = response.output_text;
-
-    if (!responseText) {
-      throw new Error('No response received from OpenRouter');
-    }
-
-    let parsed: WordData;
-    try {
-      parsed = JSON.parse(responseText);
-    } catch {
-      throw new Error('Invalid JSON from AI');
-    }
-
-    return parsed;
+    const words = await WordService.getDailyWords();
+    return words;
   } catch (error) {
-    console.error('Error fetching word data from OpenRouter:', error);
+    console.error('Action Error:', error);
+
+    // Optional: Return fallback data instead of null so the UI doesn't break
+    // return FALLBACK_WORDS;
+
     return null;
   }
 }
