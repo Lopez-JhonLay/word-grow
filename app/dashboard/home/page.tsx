@@ -1,11 +1,17 @@
-'use client';
-
 import DashboardHeader from '@/app/components/DashboardHeader';
 import DashboardCard from '@/app/components/DashboardCard';
-import WordCard from '@/app/components/WordCard';
+
 import DashboardTodaysVocab from '@/app/components/DashboardTodaysVocab';
 
-function Home() {
+import { fetchDailyWords } from '@/app/actions/word.action';
+
+import { Word } from '@/types/dictionary';
+
+async function Home() {
+  const words = (await fetchDailyWords()) as Word[];
+
+  console.log('SERVER:', words);
+
   return (
     <div className="p-4 sm:p-8">
       <div>
@@ -18,8 +24,7 @@ function Home() {
           <DashboardCard icon="✓" title="Today's Progress" stats="3/5" bgColor="bg-indigo-100" />
         </div>
 
-        {/* <WordCard /> */}
-        <DashboardTodaysVocab />
+        <DashboardTodaysVocab words={words || []} />
       </div>
     </div>
   );

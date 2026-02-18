@@ -1,4 +1,18 @@
-function DashboardTodaysVocab() {
+'use client';
+
+import { useEffect } from 'react';
+
+import { Word } from '@/types/dictionary';
+
+type DashboardTodaysVocabProps = {
+  words: Word[];
+};
+
+function DashboardTodaysVocab({ words }: DashboardTodaysVocabProps) {
+  useEffect(() => {
+    console.log('CLIENT:', words);
+  }, [words]);
+
   const vocabularyWords = [
     {
       word: 'Reluctant',

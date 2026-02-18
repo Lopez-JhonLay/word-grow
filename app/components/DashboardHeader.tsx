@@ -1,4 +1,6 @@
-import { useUser } from '@/app/contexts/UserContext';
+'use client';
+
+import { useUser } from '../contexts/UserContext';
 
 function DashboardHeader() {
   const { user } = useUser();

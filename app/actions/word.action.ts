@@ -1,17 +1,17 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
-import { GoogleGenAI } from "@google/genai";
-import OpenAI from "openai";
-import { WordData } from "@/lib/dictionary";
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { prisma } from '@/lib/prisma';
+import { requireAuth } from '@/lib/auth';
+import { GoogleGenAI } from '@google/genai';
+import OpenAI from 'openai';
+import { WordData } from '@/types/dictionary';
 
 const SaveSentenceSchema = z.object({
   word: z.string(),
   definition: z.string(),
-  userSentence: z.string().min(1, "Please type a sentence first."),
+  userSentence: z.string().min(1, 'Please type a sentence first.'),
 });
 
 export type State = {
@@ -30,25 +30,67 @@ export interface GrammarState {
   original?: string;
 }
 
+export async function fetchDailyWords(): Promise<WordData | null> {
+  try {
+    const client = new OpenAI({
+      apiKey: process.env.OPEN_ROUTER_API_KEY,
+      baseURL: 'https://openrouter.ai/api/v1',
+    });
+
+    let prompt: string;
+
+    prompt = `
+        You are an expert English dictionary and language teacher.
+        Generate 3 random useful vocabulary words.
+        Return ONLY valid JSON with keys: word, definition, example, phonetic.
+        No extra text or markdown.`;
+
+    const response = await client.responses.create({
+      model: 'gpt-4o-mini',
+      temperature: 0.2,
+      input: prompt,
+      max_output_tokens: 250,
+    });
+
+    const responseText: string = response.output_text;
+
+    if (!responseText) {
+      throw new Error('No response received from OpenRouter');
+    }
+
+    let parsed: WordData;
+    try {
+      parsed = JSON.parse(responseText);
+    } catch {
+      throw new Error('Invalid JSON from AI');
+    }
+
+    return parsed;
+  } catch (error) {
+    console.error('Error fetching word data from OpenRouter:', error);
+    return null;
+  }
+}
+
 export async function saveUserSentence(prevState: State, formData: FormData): Promise<State> {
   let user;
 
   try {
     user = await requireAuth();
   } catch (error) {
-    return { message: "You must be logged in to save." };
+    return { message: 'You must be logged in to save.' };
   }
 
   const validatedFields = SaveSentenceSchema.safeParse({
-    word: formData.get("word"),
-    definition: formData.get("definition"),
-    userSentence: formData.get("userSentence"),
+    word: formData.get('word'),
+    definition: formData.get('definition'),
+    userSentence: formData.get('userSentence'),
   });
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Missing Fields. Failed to Save.",
+      message: 'Missing Fields. Failed to Save.',
     };
   }
 
@@ -66,25 +108,25 @@ export async function saveUserSentence(prevState: State, formData: FormData): Pr
       },
     });
   } catch (error) {
-    console.error("Detailed Database Error:", error);
-    return { message: "Database Error: Failed to save sentence." };
+    console.error('Detailed Database Error:', error);
+    return { message: 'Database Error: Failed to save sentence.' };
   }
 
-  revalidatePath("/dashboard");
+  revalidatePath('/dashboard');
 
-  return { message: "Saved successfully!" };
+  return { message: 'Saved successfully!' };
 }
 
 export async function checkUserSentence(prevState: GrammarState, formData: FormData): Promise<GrammarState> {
-  const word = formData.get("word") as string;
-  const definition = formData.get("definition") as string;
-  const example = formData.get("example") as string;
-  const sentence = formData.get("userSentence") as string;
+  const word = formData.get('word') as string;
+  const definition = formData.get('definition') as string;
+  const example = formData.get('example') as string;
+  const sentence = formData.get('userSentence') as string;
 
-  if (!sentence || sentence.trim() === "") {
+  if (!sentence || sentence.trim() === '') {
     return {
       success: false,
-      error: "Please enter a sentence.",
+      error: 'Please enter a sentence.',
     };
   }
 
@@ -128,15 +170,15 @@ export async function checkUserSentence(prevState: GrammarState, formData: FormD
       `;
 
     const result = await genAI.models.generateContent({
-      model: "gemini-2.5-flash",
-      config: { responseMimeType: "application/json" },
-      contents: [{ role: "user", parts: [{ text: systemPrompt + "\n\nUser Sentence: " + sentence }] }],
+      model: 'gemini-2.5-flash',
+      config: { responseMimeType: 'application/json' },
+      contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\nUser Sentence: ' + sentence }] }],
     });
 
     const responseText = result.text;
 
     if (!responseText) {
-      throw new Error("No response received from AI");
+      throw new Error('No response received from AI');
     }
 
     const data = JSON.parse(responseText);
@@ -149,69 +191,11 @@ export async function checkUserSentence(prevState: GrammarState, formData: FormD
       ...data,
     };
   } catch (error) {
-    console.error("API Error:", error);
+    console.error('API Error:', error);
     return {
       success: false,
-      error: "Failed to check grammar. Please try again.",
+      error: 'Failed to check grammar. Please try again.',
     };
-  }
-}
-
-export async function fetchWordData(word?: string): Promise<WordData | null> {
-  try {
-    const client = new OpenAI({
-      apiKey: process.env.OPEN_ROUTER_API_KEY,
-      baseURL: "https://openrouter.ai/api/v1",
-    });
-
-    let prompt: string;
-
-    if (word) {
-      prompt = `
-        You are an expert English dictionary and language teacher.
-        Provide detailed information about the word "${word}".
-        Return ONLY valid JSON with keys: word, definition, example, phonetic.
-        No extra text or markdown.`;
-    } else {
-      prompt = `
-        You are an expert English dictionary and language teacher.
-        Generate a random useful vocabulary word.
-        Return ONLY valid JSON with keys: word, definition, example, phonetic.
-        No extra text or markdown.`;
-    }
-
-    const response = await client.chat.completions.create({
-      model: "openai/gpt-5.2", // switched to reliable 5.2
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 250,
-    });
-
-    const responseText = response.choices?.[0]?.message?.content;
-
-    if (!responseText) {
-      throw new Error("No response received from OpenRouter");
-    }
-
-    // Safe JSON parse: extract first {...} block in case extra text is present
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("No JSON found in model response");
-    }
-
-    const data: WordData = JSON.parse(jsonMatch[0]);
-
-    if (!data.word || !data.definition || !data.example) {
-      throw new Error("Invalid response structure from OpenRouter");
-    }
-
-    return {
-      word: data.word,
-      definition: data.definition,
-      example: data.example,
-    };
-  } catch (error) {
-    console.error("Error fetching word data from OpenRouter:", error);
-    return null;
   }
 }
 

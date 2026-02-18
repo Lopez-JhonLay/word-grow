@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useActionState, useState, useEffect } from "react";
-import { toast } from "react-hot-toast";
-import { GrammarState, saveUserSentence, checkUserSentence, State, fetchWordData } from "../actions/word.action";
-import { WordData } from "../../lib/dictionary";
+import { useActionState, useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+import { GrammarState, saveUserSentence, checkUserSentence, State, fetchWordData } from '../actions/word.action';
+import { WordData } from '../../types/dictionary';
 
 interface WordCardProps {
   initialWord?: string;
@@ -11,9 +11,9 @@ interface WordCardProps {
 
 const initialGrammarState: GrammarState = {
   success: false,
-  error: "",
-  corrected: "",
-  explanation: "",
+  error: '',
+  corrected: '',
+  explanation: '',
   is_correct: false,
 };
 
@@ -23,7 +23,7 @@ const initialSaveState: State = {
 };
 
 export default function WordCard({ initialWord }: WordCardProps) {
-  const [sentence, setSentence] = useState("");
+  const [sentence, setSentence] = useState('');
   const [wordData, setWordData] = useState<WordData | null>(null);
   const [isLoadingWord, setIsLoadingWord] = useState(true);
   const [saveState, saveAction, isSaving] = useActionState(saveUserSentence, initialSaveState);
@@ -39,11 +39,11 @@ export default function WordCard({ initialWord }: WordCardProps) {
       } else {
         // Fallback to default data if API fails
         setWordData({
-          word: "Ubiquitous",
-          definition: "Present, appearing, or found everywhere.",
-          example: "Smartphones have become ubiquitous in modern society.",
+          word: 'Ubiquitous',
+          definition: 'Present, appearing, or found everywhere.',
+          example: 'Smartphones have become ubiquitous in modern society.',
         });
-        toast.error("Failed to load word from API, using default word");
+        toast.error('Failed to load word from API, using default word');
       }
       setIsLoadingWord(false);
     };
@@ -54,29 +54,29 @@ export default function WordCard({ initialWord }: WordCardProps) {
   // Function to load a new random word
   const loadNewWord = async () => {
     setIsLoadingWord(true);
-    setSentence(""); // Clear current sentence
+    setSentence(''); // Clear current sentence
     const data = await fetchWordData();
     if (data) {
       setWordData(data);
       toast.success(`New word loaded: ${data.word}`);
     } else {
-      toast.error("Failed to load new word");
+      toast.error('Failed to load new word');
     }
     setIsLoadingWord(false);
   };
 
   useEffect(() => {
-    if (saveState.message === "Saved successfully!") {
-      toast.success("Sentence saved successfully!");
-      setSentence("");
-    } else if (saveState.message && saveState.message !== "Saved successfully!") {
+    if (saveState.message === 'Saved successfully!') {
+      toast.success('Sentence saved successfully!');
+      setSentence('');
+    } else if (saveState.message && saveState.message !== 'Saved successfully!') {
       toast.error(saveState.message);
     }
   }, [saveState.message]);
 
   useEffect(() => {
     if (grammarState.success && grammarState.is_correct) {
-      toast.success("Great! Your sentence is correct!");
+      toast.success('Great! Your sentence is correct!');
     } else if (grammarState.error) {
       toast.error(grammarState.error);
     }
@@ -119,7 +119,7 @@ export default function WordCard({ initialWord }: WordCardProps) {
             disabled={isLoadingWord}
             className="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white font-medium rounded-lg transition-colors duration-200 disabled:cursor-not-allowed text-sm"
           >
-            {isLoadingWord ? "Loading..." : "New Word"}
+            {isLoadingWord ? 'Loading...' : 'New Word'}
           </button>
         </div>
         <div className="w-16 h-1 bg-blue-500 rounded-full"></div>
@@ -146,8 +146,8 @@ export default function WordCard({ initialWord }: WordCardProps) {
           onChange={(e) => setSentence(e.target.value)}
           className={`w-full h-28 p-4 border-2 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
             saveState.errors?.userSentence
-              ? "border-red-300 bg-red-50"
-              : "border-gray-200 hover:border-gray-300 focus:border-blue-500"
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-200 hover:border-gray-300 focus:border-blue-500'
           }`}
           placeholder="Type your sentence here..."
           disabled={isSaving}
@@ -179,7 +179,7 @@ export default function WordCard({ initialWord }: WordCardProps) {
                 Checking...
               </span>
             ) : (
-              "Check Grammar"
+              'Check Grammar'
             )}
           </button>
         </form>
@@ -200,7 +200,7 @@ export default function WordCard({ initialWord }: WordCardProps) {
                 Saving...
               </span>
             ) : (
-              "Save"
+              'Save'
             )}
           </button>
         </form>
@@ -210,21 +210,21 @@ export default function WordCard({ initialWord }: WordCardProps) {
       {grammarState.success && (
         <div
           className={`p-4 rounded-xl border-l-4 ${
-            grammarState.is_correct ? "bg-green-50 border-green-400" : "bg-yellow-50 border-yellow-400"
+            grammarState.is_correct ? 'bg-green-50 border-green-400' : 'bg-yellow-50 border-yellow-400'
           }`}
         >
           <div className="flex items-start gap-3">
             <div
               className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                grammarState.is_correct ? "bg-green-500" : "bg-yellow-500"
+                grammarState.is_correct ? 'bg-green-500' : 'bg-yellow-500'
               }`}
             >
-              {grammarState.is_correct ? "✓" : "!"}
+              {grammarState.is_correct ? '✓' : '!'}
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-gray-900 mb-1">AI Feedback</h4>
               <p
-                className={`text-sm leading-relaxed ${grammarState.is_correct ? "text-green-800" : "text-yellow-800"}`}
+                className={`text-sm leading-relaxed ${grammarState.is_correct ? 'text-green-800' : 'text-yellow-800'}`}
               >
                 {grammarState.explanation}
               </p>
