@@ -2,7 +2,11 @@
 
 import { useUser } from '../contexts/UserContext';
 
-function DashboardHeader() {
+type DashboardHeaderProps = {
+  onStartLearning: () => void;
+};
+
+function DashboardHeader({ onStartLearning }: DashboardHeaderProps) {
   const { user } = useUser();
 
   const getGreeting = () => {
@@ -22,7 +26,10 @@ function DashboardHeader() {
         </h1>
         <p className="text-gray-600 text-sm sm:text-base">Ready to expand your horizons and learn new words today?</p>
       </div>
-      <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-full flex items-center gap-2 transition-colors whitespace-nowrap text-sm sm:text-base">
+      <button
+        onClick={onStartLearning}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-full flex items-center gap-2 transition-colors whitespace-nowrap text-sm sm:text-base cursor-pointer"
+      >
         <span className="text-lg">▶</span>
         Start Today's Learning
       </button>
