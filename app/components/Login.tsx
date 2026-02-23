@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "../auth/schema";
-import { LoginFormData } from "@/types/form";
-import { login } from "../auth/actions";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '../auth/schema';
+import { LoginFormData } from '@/types/form';
+import { login } from '../auth/actions';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 type LoginProps = {
   onSwitch: () => void;
@@ -25,8 +25,8 @@ function Login({ onSwitch }: LoginProps) {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -38,16 +38,18 @@ function Login({ onSwitch }: LoginProps) {
       const result = await login(formData);
 
       if (result?.errors) {
-        toast.error("Please check the form for errors");
+        const errorMessages = Object.values(result.errors).flat();
+        const errorMessage = errorMessages[0] || 'Please check the form for errors';
+        toast.error(errorMessage);
         return;
       }
 
-      router.push("/dashboard/home");
+      router.push('/dashboard/home');
 
-      toast.success("Login successfully!");
+      toast.success('Login successfully!');
     } catch (err) {
-      console.error("Login failed:", err);
-      toast.error("Something went wrong. Please try again.");
+      console.error('Login failed:', err);
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
@@ -81,7 +83,7 @@ function Login({ onSwitch }: LoginProps) {
               </svg>
             </div>
             <input
-              {...register("email")}
+              {...register('email')}
               type="email"
               id="email"
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition"
@@ -113,8 +115,8 @@ function Login({ onSwitch }: LoginProps) {
               </svg>
             </div>
             <input
-              {...register("password")}
-              type={showPassword ? "text" : "password"}
+              {...register('password')}
+              type={showPassword ? 'text' : 'password'}
               id="password"
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition  tracking-widest"
               placeholder="••••••••"
@@ -170,7 +172,7 @@ function Login({ onSwitch }: LoginProps) {
           type="submit"
           disabled={isSubmitting}
           className={`w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ${
-            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+            isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
           {isSubmitting ? (
@@ -203,7 +205,7 @@ function Login({ onSwitch }: LoginProps) {
               />
             </svg>
           )}
-          {isSubmitting ? "Logging in..." : "Login"}
+          {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
       </form>
 
@@ -259,10 +261,10 @@ function Login({ onSwitch }: LoginProps) {
 
       <div className="text-center mt-8">
         <p className="text-xs text-gray-400">
-          Don't have an account yet?{" "}
+          Don't have an account yet?{' '}
           <button onClick={onSwitch} className="text-blue-500 hover:text-blue-600 font-medium">
             Sign up
-          </button>{" "}
+          </button>{' '}
           to start learning.
         </p>
       </div>
