@@ -5,10 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { GoogleGenAI } from '@google/genai';
-import OpenAI from 'openai';
 import { WordData } from '@/types/dictionary';
 
 import { WordService } from '../services/word.service';
+import { Prisma } from '../generated/prisma/client';
 
 const SaveSentenceSchema = z.object({
   word: z.string(),
@@ -34,14 +34,45 @@ export interface GrammarState {
 
 export async function fetchDailyWords(): Promise<WordData | null> {
   try {
+    const user = await requireAuth();
+
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+    const existingEntry = await prisma.dailyUserWords.findFirst({
+      where: {
+        userId: user.id,
+        createdAt: {
+          gte: startOfDay,
+          lt: endOfDay,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (existingEntry && existingEntry.words) {
+      console.log('Returning cached words from DB');
+      return existingEntry.words as WordData;
+    }
+
+    console.log('Fetching new words from AI Service...');
     const words = await WordService.getDailyWords();
+
+    if (!words) return null;
+
+    await prisma.dailyUserWords.create({
+      data: {
+        userId: user.id,
+        words: words as unknown as Prisma.InputJsonValue,
+      },
+    });
+
     return words;
   } catch (error) {
     console.error('Action Error:', error);
-
-    // Optional: Return fallback data instead of null so the UI doesn't break
-    // return FALLBACK_WORDS;
-
     return null;
   }
 }

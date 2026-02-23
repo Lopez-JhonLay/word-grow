@@ -28,9 +28,7 @@ model User {
 
 model DailyUserWords {
   id        String   @id @default(cuid())
-  word1     String
-  word2     String
-  word3     String
+  words     Json
 
   userId    String
   createdAt DateTime @default(now())
