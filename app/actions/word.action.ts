@@ -4,8 +4,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
-import { GoogleGenAI } from '@google/genai';
-import { WordData } from '@/types/dictionary';
+
+import { Word, WordData } from '@/types/dictionary';
 
 import { WordService } from '../services/word.service';
 import { Prisma } from '../generated/prisma/client';
@@ -136,136 +136,63 @@ export async function checkUserSentence(prevState: GrammarState, formData: FormD
   }
 
   try {
-    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-    const systemPrompt = `
-      You are an expert English teacher.
-
-      The user is learning the word: "${word}"
-      Definition: ${definition}
-      Example usage: ${example}
-
-      TASK:
-      1. Check the user's sentence for:
-        - Grammar and spelling
-        - Correct usage of the word "${word}" based on its definition
-
-      2. If the sentence is incorrect:
-        - Rewrite the sentence into a natural, correct version
-        - The rewritten sentence MUST use "${word}" correctly
-        - The rewritten sentence MUST be same with the user ${sentence}
-        - The rewritten sentence MUST NOT be similar to the provided ${example}
-        - Do NOT ask questions
-        - Do NOT use phrases like "Did you mean", "Consider", or "You should"
-
-      3. If the sentence is correct:
-        - Return it unchanged
-
-      OUTPUT RULES:
-      - Return ONLY a valid JSON object
-      - Do NOT include markdown
-      - Do NOT include extra commentary outside the JSON
-
-      JSON STRUCTURE (exact keys):
-      {
-        "corrected": "string",
-        "is_correct": boolean,
-        "explanation": "Brief, simple explanation of what was right or wrong"
-      }
-      `;
-
-    const result = await genAI.models.generateContent({
-      model: 'gemini-2.5-flash',
-      config: { responseMimeType: 'application/json' },
-      contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\nUser Sentence: ' + sentence }] }],
-    });
-
-    const responseText = result.text;
-
-    if (!responseText) {
-      throw new Error('No response received from AI');
-    }
-
-    const data = JSON.parse(responseText);
-
-    console.log(data);
+    const analysis = await WordService.checkSentence(word, definition, sentence, example);
 
     return {
       success: true,
       original: sentence,
-      ...data,
+      ...analysis,
     };
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('Action Error:', error);
     return {
       success: false,
       error: 'Failed to check grammar. Please try again.',
+      is_correct: false,
+      explanation: '',
     };
   }
 }
 
-/* export async function fetchMultipleWords(count: number = 5): Promise<WordData[]> {
+export async function getUserDashboardStats(todaysWords: Word[]) {
   try {
-    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const user = await requireAuth();
 
-    const systemPrompt = `
-      You are an expert English dictionary and language teacher.
-      
-      TASK: Generate ${count} different vocabulary words suitable for language learning
-      
-      REQUIREMENTS:
-      1. Choose interesting but not overly complex vocabulary words
-      2. Words should be useful for intermediate to advanced English learners
-      3. Provide clear, concise definitions for each word
-      4. Create natural example sentences using each word
-      5. Include phonetic pronunciation if possible
-      6. Avoid very common words and extremely rare words
-      7. Focus on words that are valuable for academic, professional, or sophisticated conversation
-      8. Make sure all words are different and diverse in topics
-      
-      OUTPUT RULES:
-      - Return ONLY a valid JSON array
-      - Do NOT include markdown formatting
-      - Do NOT include extra commentary outside the JSON
-      
-      JSON STRUCTURE (exact format):
-      [
-        {
-          "word": "The vocabulary word",
-          "definition": "Clear and concise definition",
-          "example": "Natural example sentence using the word",
-          "phonetic": "Phonetic pronunciation (optional, use null if not available)"
-        }
-      ]
-    `;
-
-    const result = await genAI.models.generateContent({
-      model: "gemini-2.0-flash-exp",
-      config: { responseMimeType: "application/json" },
-      contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+    const totalWordsLearned = await prisma.wordResponse.count({
+      where: { userId: user.id },
     });
 
-    const responseText = result.text;
-
-    if (!responseText) {
-      throw new Error("No response received from Gemini API");
+    if (!todaysWords || todaysWords.length === 0) {
+      return {
+        totalWordsLearned,
+        completedWordList: [],
+        dailyProgress: 0,
+      };
     }
 
-    const data: WordData[] = JSON.parse(responseText);
+    const completedDailyWords = await prisma.wordResponse.findMany({
+      where: {
+        userId: user.id,
+        word: {
+          in: todaysWords.map((w) => w.word),
+        },
+      },
+      select: { word: true },
+    });
 
-    // Validate the response structure
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error("Invalid response structure from Gemini API");
-    }
+    const completedWordList = completedDailyWords.map((w) => w.word);
 
-    return data.map((item) => ({
-      word: item.word,
-      definition: item.definition,
-      example: item.example,
-      phonetic: item.phonetic || undefined,
-    }));
+    return {
+      totalWordsLearned,
+      completedWordList,
+      dailyProgress: completedWordList.length,
+    };
   } catch (error) {
-    console.error("Error fetching multiple words from Gemini:", error);
-    return [];
+    console.error('Error fetching stats:', error);
+    return {
+      totalWordsLearned: 0,
+      completedWordList: [],
+      dailyProgress: 0,
+    };
   }
-} */
+}

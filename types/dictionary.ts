@@ -6,3 +6,9 @@ export type Word = {
 };
 
 export type WordData = Word[];
+
+export type GrammarAnalysis = {
+  is_correct: boolean;
+  corrected?: string;
+  explanation: string;
+};

@@ -1,13 +1,25 @@
-import { fetchDailyWords } from '@/app/actions/word.action';
+import { fetchDailyWords, getUserDashboardStats } from '@/app/actions/word.action';
 import { Word } from '@/types/dictionary';
 import DashboardContent from '@/app/components/DashboardContent';
 
 async function Home() {
-  const words = (await fetchDailyWords()) as Word[];
+  const dailyWords = (await fetchDailyWords()) as Word[];
+
+  const stats = await getUserDashboardStats(dailyWords || []);
+
+  const { totalWordsLearned, completedWordList, dailyProgress } = stats;
+
+  const totalDaily = dailyWords ? dailyWords.length : 0;
 
   return (
     <div className="p-4 sm:p-8">
-      <DashboardContent words={words} />
+      <DashboardContent
+        dailyWords={dailyWords}
+        completedWords={completedWordList}
+        totalWordsLearned={totalWordsLearned}
+        dailyProgress={dailyProgress}
+        totalDaily={totalDaily}
+      />
     </div>
   );
 }

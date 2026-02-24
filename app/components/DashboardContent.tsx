@@ -7,10 +7,20 @@ import DashboardCard from './DashboardCard';
 import DashboardTodaysVocab from './DashboardTodaysVocab';
 
 type Props = {
-  words: Word[];
+  dailyWords: Word[];
+  completedWords: string[];
+  totalWordsLearned: number;
+  dailyProgress: number;
+  totalDaily: number;
 };
 
-export default function DashboardContent({ words }: Props) {
+export default function DashboardContent({
+  dailyWords,
+  completedWords,
+  totalWordsLearned,
+  dailyProgress,
+  totalDaily,
+}: Props) {
   const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
 
   return (
@@ -19,13 +29,19 @@ export default function DashboardContent({ words }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <DashboardCard icon="🔥" title="Learning Streak" stats="12 Days" bgColor="bg-orange-100" />
-        <DashboardCard icon="🎓" title="Words Learned" stats={245} bgColor="bg-blue-100" />
+        <DashboardCard stats={totalWordsLearned} icon="🎓" title="Words Learned" bgColor="bg-blue-100" />
         <DashboardCard icon="📈" title="Accuracy Rate" stats="86%" bgColor="bg-green-100" />
-        <DashboardCard icon="✓" title="Today's Progress" stats="3/5" bgColor="bg-indigo-100" />
+        <DashboardCard
+          stats={`${dailyProgress} / ${totalDaily}`}
+          icon="✓"
+          title="Today's Progress"
+          bgColor="bg-indigo-100"
+        />
       </div>
 
       <DashboardTodaysVocab
-        words={words}
+        dailyWords={dailyWords}
+        completedWords={completedWords}
         isModalOpen={isPracticeModalOpen}
         onCloseModal={() => setIsPracticeModalOpen(false)}
       />

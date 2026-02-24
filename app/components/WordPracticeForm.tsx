@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { checkUserSentence, saveUserSentence } from '@/app/actions/word.action';
 
-type Props = {
+type WordPracticeFormProps = {
   word: string;
   definition: string;
   example?: string;
@@ -11,13 +11,12 @@ type Props = {
   onNext: () => void;
 };
 
-export function WordPracticeForm({ word, definition, example, isLastWord, onNext }: Props) {
+export function WordPracticeForm({ word, definition, example, isLastWord, onNext }: WordPracticeFormProps) {
   const [sentence, setSentence] = useState('');
   const [feedback, setFeedback] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  // 1. Check Grammar
   async function handleCheck() {
     if (!sentence.trim()) return;
     setLoading(true);
@@ -33,7 +32,6 @@ export function WordPracticeForm({ word, definition, example, isLastWord, onNext
     setLoading(false);
   }
 
-  // 2. Save to DB
   async function handleSave() {
     setLoading(true);
     const formData = new FormData();
@@ -49,7 +47,6 @@ export function WordPracticeForm({ word, definition, example, isLastWord, onNext
     setLoading(false);
   }
 
-  // --- VIEW: SUCCESS STATE (After Saving) ---
   if (isSaved) {
     return (
       <div className="text-center py-8 space-y-6 animate-in fade-in zoom-in duration-300">
@@ -71,7 +68,7 @@ export function WordPracticeForm({ word, definition, example, isLastWord, onNext
 
         <button
           onClick={onNext}
-          className="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+          className="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           {isLastWord ? 'Finish Session' : 'Continue to Next Word'}
           <svg
@@ -88,7 +85,6 @@ export function WordPracticeForm({ word, definition, example, isLastWord, onNext
     );
   }
 
-  // --- VIEW: FORM STATE ---
   return (
     <div className="space-y-4">
       <div>
@@ -134,7 +130,7 @@ export function WordPracticeForm({ word, definition, example, isLastWord, onNext
           <button
             onClick={handleCheck}
             disabled={loading || !sentence}
-            className="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             {loading ? 'Analyzing...' : 'Check Grammar'}
           </button>
@@ -142,7 +138,7 @@ export function WordPracticeForm({ word, definition, example, isLastWord, onNext
           <button
             onClick={handleSave}
             disabled={loading}
-            className="w-full bg-green-600 text-white py-3.5 rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            className="w-full bg-green-600 text-white py-3.5 rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer"
           >
             {loading ? 'Saving...' : 'Save to Journal'}
           </button>
