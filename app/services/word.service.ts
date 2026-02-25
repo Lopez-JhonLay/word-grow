@@ -4,13 +4,13 @@ import { PROMPTS } from '@/lib/prompts';
 import { GrammarAnalysis, Word } from '@/types/dictionary';
 
 export const WordService = {
-  async getDailyWords(): Promise<Word[]> {
+  async getDailyWords(excludeWords: string[] = []): Promise<Word[]> {
     try {
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: PROMPTS.SYSTEM_IDENTITY },
-          { role: 'user', content: PROMPTS.generateDailyWords(3, 'C1') },
+          { role: 'user', content: PROMPTS.generateDailyWords(3, 'C1', excludeWords) },
         ],
         temperature: 0.7,
       });

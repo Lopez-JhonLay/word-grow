@@ -7,7 +7,13 @@ export const PROMPTS = {
   `,
 
   // A dynamic prompt generator
-  generateDailyWords: (count: number = 3, level: Level = 'B2') => `
+  generateDailyWords: (count: number = 3, level: Level = 'B2', excludeWords: string[] = []) => {
+    const exclusionInstruction =
+      excludeWords.length > 0
+        ? `\n\nCRITICAL RULE: Do NOT generate any of the following words: ${excludeWords.join(', ')}.`
+        : '';
+
+    return `
     Generate ${count} random, useful vocabulary words at the ${level} English proficiency level.
     
     Rules:
@@ -15,5 +21,8 @@ export const PROMPTS = {
     2. Do NOT include markdown formatting (like \`\`\`json).
     3. Each object must have: "word", "definition", "example", "phonetic".
     4. Ensure the examples are modern and relatable.
-  `,
+    
+    ${exclusionInstruction}
+  `;
+  },
 };

@@ -58,8 +58,18 @@ export async function fetchDailyWords(): Promise<WordData | null> {
       return existingEntry.words as WordData;
     }
 
-    console.log('Fetching new words from AI Service...');
-    const words = await WordService.getDailyWords();
+    const recentWords = await prisma.wordResponse.findMany({
+      where: { userId: user.id },
+      select: { word: true },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+
+    const excludeList = recentWords.map((record) => record.word);
+
+    console.log(`Fetching new words from AI. Excluding ${excludeList.length} recent words. ${excludeList}`);
+
+    const words = await WordService.getDailyWords(excludeList);
 
     if (!words) return null;
 
