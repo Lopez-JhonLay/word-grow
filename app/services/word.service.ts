@@ -40,6 +40,12 @@ export const WordService = {
         2. If incorrect, rewrite it to be natural but keep the same meaning.
         3. Do NOT use the provided example sentence in your rewrite.
 
+        CRITICAL RULES:
+        1. If the sentence is grammatically correct and uses the word correctly, return "is_correct": true.
+        2. Do NOT rewrite the sentence just to make it "sound better" or for stylistic reasons.
+        3. Only provide a "corrected" version if there is an actual error.
+        4. If "is_correct" is true, the "corrected" field MUST be the same as the user's input.
+
         OUTPUT RULES:
         - Return ONLY a valid JSON object.
         - JSON Structure: { "corrected": "string", "is_correct": boolean, "explanation": "string" }
