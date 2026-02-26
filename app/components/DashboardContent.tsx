@@ -12,6 +12,7 @@ type Props = {
   totalWordsLearned: number;
   dailyProgress: number;
   totalDaily: number;
+  streak: number;
 };
 
 export default function DashboardContent({
@@ -20,6 +21,7 @@ export default function DashboardContent({
   totalWordsLearned,
   dailyProgress,
   totalDaily,
+  streak,
 }: Props) {
   const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
 
@@ -28,7 +30,7 @@ export default function DashboardContent({
       <DashboardHeader onStartLearning={() => setIsPracticeModalOpen(true)} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <DashboardCard icon="🔥" title="Learning Streak" stats="12 Days" bgColor="bg-orange-100" />
+        <DashboardCard icon="🔥" title="Learning Streak" stats={`${streak} Days`} bgColor="bg-orange-100" />
         <DashboardCard stats={totalWordsLearned} icon="🎓" title="Words Learned" bgColor="bg-blue-100" />
         <DashboardCard icon="📈" title="Accuracy Rate" stats="86%" bgColor="bg-green-100" />
         <DashboardCard

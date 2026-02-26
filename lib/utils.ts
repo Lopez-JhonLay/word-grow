@@ -10,3 +10,7 @@ export function parseAIResponse<T>(content: string | null): T {
     throw new Error('Failed to parse AI response');
   }
 }
+
+export function dateToString(date: Date) {
+  return date.toISOString().split('T')[0];
+}

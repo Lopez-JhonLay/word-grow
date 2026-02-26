@@ -10,6 +10,8 @@ import { Word, WordData } from '@/types/dictionary';
 import { WordService } from '../services/word.service';
 import { Prisma } from '../generated/prisma/client';
 
+import { dateToString } from '@/lib/utils';
+
 const SaveSentenceSchema = z.object({
   word: z.string(),
   definition: z.string(),
@@ -88,10 +90,10 @@ export async function fetchDailyWords(): Promise<WordData | null> {
 }
 
 export async function saveUserSentence(prevState: State, formData: FormData): Promise<State> {
-  let user;
+  let sessionUser;
 
   try {
-    user = await requireAuth();
+    sessionUser = await requireAuth();
   } catch (error) {
     return { message: 'You must be logged in to save.' };
   }
@@ -112,16 +114,48 @@ export async function saveUserSentence(prevState: State, formData: FormData): Pr
   const { word, definition, userSentence } = validatedFields.data;
 
   try {
-    console.log(`Saving for User ID: ${user.id}`);
-
-    await prisma.wordResponse.create({
-      data: {
-        userId: user.id,
-        word,
-        definition,
-        sentence: userSentence,
-      },
+    const user = await prisma.user.findUnique({
+      where: { id: sessionUser.id },
+      select: { id: true, currentStreak: true, lastActivityDate: true },
     });
+
+    if (!user) throw new Error('User not found');
+
+    const today = new Date();
+    const todayStr = dateToString(today);
+    const lastActivityStr = user.lastActivityDate ? dateToString(user.lastActivityDate) : null;
+
+    let newStreak = user.currentStreak;
+
+    if (lastActivityStr !== todayStr) {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = dateToString(yesterday);
+
+      if (lastActivityStr === yesterdayStr) {
+        newStreak += 1;
+      } else {
+        newStreak = 1; // Streak broken or first time
+      }
+    }
+
+    await prisma.$transaction([
+      prisma.wordResponse.create({
+        data: {
+          userId: user.id,
+          word,
+          definition,
+          sentence: userSentence,
+        },
+      }),
+      prisma.user.update({
+        where: { id: user.id },
+        data: {
+          currentStreak: newStreak,
+          lastActivityDate: today,
+        },
+      }),
+    ]);
   } catch (error) {
     console.error('Detailed Database Error:', error);
     return { message: 'Database Error: Failed to save sentence.' };
@@ -166,34 +200,61 @@ export async function checkUserSentence(prevState: GrammarState, formData: FormD
 
 export async function getUserDashboardStats(todaysWords: Word[]) {
   try {
-    const user = await requireAuth();
+    const sessionUser = await requireAuth();
 
-    const totalWordsLearned = await prisma.wordResponse.count({
-      where: { userId: user.id },
+    // 1. Fetch User Streak Data
+    const user = await prisma.user.findUnique({
+      where: { id: sessionUser.id },
+      select: { currentStreak: true, lastActivityDate: true },
     });
 
-    if (!todaysWords || todaysWords.length === 0) {
-      return {
-        totalWordsLearned,
-        completedWordList: [],
-        dailyProgress: 0,
-      };
+    // 2. Fetch Total Words Learned
+    const totalWordsLearned = await prisma.wordResponse.count({
+      where: { userId: sessionUser.id },
+    });
+
+    // 3. Calculate Effective Streak
+    let displayStreak = 0;
+
+    if (user && user.lastActivityDate) {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      // Use your existing helper 'dateToString'
+      const todayStr = dateToString(today);
+      const yesterdayStr = dateToString(yesterday);
+      const lastActivityStr = dateToString(user.lastActivityDate);
+
+      // Streak logic: It is valid if activity was Today OR Yesterday.
+      // If last activity was 2 days ago, the streak is broken (0).
+      if (lastActivityStr === todayStr || lastActivityStr === yesterdayStr) {
+        displayStreak = user.currentStreak;
+      } else {
+        displayStreak = 0;
+      }
     }
 
-    const completedDailyWords = await prisma.wordResponse.findMany({
-      where: {
-        userId: user.id,
-        word: {
-          in: todaysWords.map((w) => w.word),
-        },
-      },
-      select: { word: true },
-    });
+    // 4. Calculate Daily Progress (Words completed today)
+    let completedWordList: string[] = [];
 
-    const completedWordList = completedDailyWords.map((w) => w.word);
+    if (todaysWords && todaysWords.length > 0) {
+      const completedDailyWords = await prisma.wordResponse.findMany({
+        where: {
+          userId: sessionUser.id, // Fixed: Use sessionUser.id, not user.id
+          word: {
+            in: todaysWords.map((w) => w.word),
+          },
+        },
+        select: { word: true },
+      });
+
+      completedWordList = completedDailyWords.map((w) => w.word);
+    }
 
     return {
       totalWordsLearned,
+      streak: displayStreak, // Added: Return the calculated streak
       completedWordList,
       dailyProgress: completedWordList.length,
     };
@@ -201,6 +262,7 @@ export async function getUserDashboardStats(todaysWords: Word[]) {
     console.error('Error fetching stats:', error);
     return {
       totalWordsLearned: 0,
+      streak: 0,
       completedWordList: [],
       dailyProgress: 0,
     };

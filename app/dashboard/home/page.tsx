@@ -7,7 +7,7 @@ async function Home() {
 
   const stats = await getUserDashboardStats(dailyWords || []);
 
-  const { totalWordsLearned, completedWordList, dailyProgress } = stats;
+  const { totalWordsLearned, completedWordList, dailyProgress, streak } = stats;
 
   const totalDaily = dailyWords ? dailyWords.length : 0;
 
@@ -19,6 +19,7 @@ async function Home() {
         totalWordsLearned={totalWordsLearned}
         dailyProgress={dailyProgress}
         totalDaily={totalDaily}
+        streak={streak}
       />
     </div>
   );
