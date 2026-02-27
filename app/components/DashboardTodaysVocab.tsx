@@ -41,12 +41,12 @@ function DashboardTodaysVocab({ dailyWords, completedWords, isModalOpen, onClose
 
   return (
     <>
-      <div className="bg-white rounded-4xl p-6 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Today's Vocabulary</h2>
+      <div className="bg-white rounded-2xl sm:rounded-4xl p-4 sm:p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Today's Vocabulary</h2>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {dailyWords.map((item) => (
             <DailyWordItem key={item.word} word={item} isCompleted={completedWords.includes(item.word)} />
           ))}
