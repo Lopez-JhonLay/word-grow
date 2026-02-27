@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { logout } from "@/app/auth/actions";
-import { useUser } from "@/app/contexts/UserContext";
-import { useState } from "react";
+import Link from 'next/link';
+import { logout } from '@/app/auth/actions';
+import { useUser } from '@/app/contexts/UserContext';
+import { useState } from 'react';
 
 export default function DashboardClient({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,9 +12,9 @@ export default function DashboardClient({ children }: { children: React.ReactNod
   // Get user initials for avatar
   const getInitials = (name: string) => {
     return name
-      .split(" ")
+      .split(' ')
       .map((word) => word[0])
-      .join("")
+      .join('')
       .toUpperCase()
       .slice(0, 2);
   };
@@ -23,13 +23,16 @@ export default function DashboardClient({ children }: { children: React.ReactNod
     <div className="flex h-screen bg-gray-50">
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
       {/* Sidebar */}
       <div
         className={`
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         fixed lg:static lg:translate-x-0
         w-64 bg-white shadow-sm flex flex-col
         transition-transform duration-300 ease-in-out
@@ -125,10 +128,10 @@ export default function DashboardClient({ children }: { children: React.ReactNod
         <div className="p-4 border-t">
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-gray-600 font-medium text-sm">{user ? getInitials(user.fullName) : "U"}</span>
+              <span className="text-gray-600 font-medium text-sm">{user ? getInitials(user.fullName) : 'U'}</span>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-800">{user ? user.fullName : "Loading..."}</p>
+              <p className="text-sm font-medium text-gray-800">{user ? user.fullName : 'Loading...'}</p>
               <p className="text-xs text-gray-500">Learner</p>
             </div>
             <button
