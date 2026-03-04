@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { logout } from '@/app/auth/actions';
 import { useUser } from '@/app/contexts/UserContext';
 import { useState } from 'react';
@@ -8,6 +9,7 @@ import { useState } from 'react';
 export default function DashboardClient({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useUser();
+  const pathname = usePathname();
 
   // Get user initials for avatar
   const getInitials = (name: string) => {
@@ -18,6 +20,9 @@ export default function DashboardClient({ children }: { children: React.ReactNod
       .toUpperCase()
       .slice(0, 2);
   };
+
+  // Helper function to check if link is active
+  const isActive = (path: string) => pathname === path;
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -62,7 +67,11 @@ export default function DashboardClient({ children }: { children: React.ReactNod
         <nav className="flex-1 p-4 space-y-2">
           <Link
             href="/dashboard/home"
-            className="flex items-center space-x-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive('/dashboard/home')
+                ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
             onClick={() => setSidebarOpen(false)}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -73,7 +82,11 @@ export default function DashboardClient({ children }: { children: React.ReactNod
 
           <Link
             href="/dashboard/progress"
-            className="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive('/dashboard/progress')
+                ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
             onClick={() => setSidebarOpen(false)}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -84,7 +97,11 @@ export default function DashboardClient({ children }: { children: React.ReactNod
 
           <Link
             href="/dashboard/settings"
-            className="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive('/dashboard/settings')
+                ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
             onClick={() => setSidebarOpen(false)}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -99,7 +116,11 @@ export default function DashboardClient({ children }: { children: React.ReactNod
 
           <Link
             href="/dashboard/quiz"
-            className="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive('/dashboard/quiz')
+                ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
             onClick={() => setSidebarOpen(false)}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -114,7 +135,11 @@ export default function DashboardClient({ children }: { children: React.ReactNod
 
           <Link
             href="/dashboard/feedback"
-            className="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive('/dashboard/feedback')
+                ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
             onClick={() => setSidebarOpen(false)}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
