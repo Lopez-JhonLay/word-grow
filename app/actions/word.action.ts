@@ -208,12 +208,10 @@ export async function getUserDashboardStats(todaysWords: Word[]) {
       select: { currentStreak: true, lastActivityDate: true },
     });
 
-    // 2. Fetch Total Words Learned
     const totalWordsLearned = await prisma.wordResponse.count({
       where: { userId: sessionUser.id },
     });
 
-    // 3. Calculate Effective Streak
     let displayStreak = 0;
 
     if (user && user.lastActivityDate) {
@@ -226,8 +224,6 @@ export async function getUserDashboardStats(todaysWords: Word[]) {
       const yesterdayStr = dateToString(yesterday);
       const lastActivityStr = dateToString(user.lastActivityDate);
 
-      // Streak logic: It is valid if activity was Today OR Yesterday.
-      // If last activity was 2 days ago, the streak is broken (0).
       if (lastActivityStr === todayStr || lastActivityStr === yesterdayStr) {
         displayStreak = user.currentStreak;
       } else {
@@ -235,13 +231,12 @@ export async function getUserDashboardStats(todaysWords: Word[]) {
       }
     }
 
-    // 4. Calculate Daily Progress (Words completed today)
     let completedWordList: string[] = [];
 
     if (todaysWords && todaysWords.length > 0) {
       const completedDailyWords = await prisma.wordResponse.findMany({
         where: {
-          userId: sessionUser.id, // Fixed: Use sessionUser.id, not user.id
+          userId: sessionUser.id,
           word: {
             in: todaysWords.map((w) => w.word),
           },
@@ -254,7 +249,7 @@ export async function getUserDashboardStats(todaysWords: Word[]) {
 
     return {
       totalWordsLearned,
-      streak: displayStreak, // Added: Return the calculated streak
+      streak: displayStreak,
       completedWordList,
       dailyProgress: completedWordList.length,
     };
@@ -266,5 +261,28 @@ export async function getUserDashboardStats(todaysWords: Word[]) {
       completedWordList: [],
       dailyProgress: 0,
     };
+  }
+}
+
+export async function getUserLearnedWords() {
+  try {
+    const sessionUser = await requireAuth();
+
+    const learnedWords = await prisma.wordResponse.findMany({
+      where: { userId: sessionUser.id },
+      select: {
+        id: true,
+        word: true,
+        definition: true,
+        sentence: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return learnedWords;
+  } catch (error) {
+    console.error('Error fetching learned words:', error);
+    return [];
   }
 }
